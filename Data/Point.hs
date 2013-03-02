@@ -22,4 +22,4 @@ instance Num a => Num (Pt a) where
 
 -- |Converts a Pt to a 2-tuple
 fromPt :: Pt a -> Point a
-fromPt (Pt a) = a 
+fromPt (Pt a) = a
