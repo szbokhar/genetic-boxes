@@ -3,19 +3,20 @@ module Program.EventHandle
     , keyboardCharUp )
 where
 
-import Control.Monad    ( when )
-import Data.Maybe       ( fromJust, isNothing )
+import Control.Applicative  ( (<$>) )
+import Control.Monad        ( when )
+import Data.Maybe           ( fromJust, isNothing )
 import Graphics.Rendering.OpenGL
 import Graphics.UI.GLUT
-import System.Exit      ( exitSuccess )
-import System.IO        ( hWaitForInput, hFlush, stdin, stdout )
+import System.Exit          ( exitSuccess )
+import System.IO            ( hWaitForInput, hFlush, stdin, stdout )
 
-import Data.BallBox     ( drawBoxMating )
-import GL.Draw          ( Drawable(drawAt) )
-import GL.Aliases       ( readInt )
+import Data.BallBox         ( drawBoxMating )
+import GL.Draw              ( Drawable(drawAt) )
+import GL.Aliases           ( readInt )
 import Program.InputHandle
-                        ( keyboardChar, keyboardCharUp, mouse, mouseMotion,
-                          passiveMotion, positions )
+                            ( keyboardChar, keyboardCharUp, mouse, mouseMotion
+                            , passiveMotion, positions )
 
 import qualified Program.State as P
 
@@ -63,7 +64,7 @@ timerLoop state = do
     addTimerCallback (div 1000 30) (timerLoop state)
 
   where listAndHalflength xs = (xs, div (length xs) 2)
-        matingRows = [(20,x) | x <- [20,140..height-100]]
+        matingRows = [(20,x) | x <- [20,140..]]
 
         -- Decides actual drawmode based on state drawMode
         drawMode (P.Automate _ _ P.Mate)    = P.Mating
