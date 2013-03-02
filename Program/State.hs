@@ -1,4 +1,4 @@
-module Program.State 
+module Program.State
     ( State(..), DisplayMode(..), AlgorithmPhases(..), initializeState
     , autoTimestep, defaultCircleCount
     , increasePopulation, rankPopulation, selectPopulation, matePopulation
@@ -27,7 +27,7 @@ defaultCircleCount = 15
 data State =
      State  { width         :: IORef GLsizei
             , height        :: IORef GLsizei
-            , close         :: IORef Bool 
+            , close         :: IORef Bool
             , prompt        :: IORef Bool
             , drawList      :: IORef [IO ()]
             , drawMode      :: IORef DisplayMode
