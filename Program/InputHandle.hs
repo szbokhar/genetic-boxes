@@ -85,7 +85,7 @@ passiveMotion state mousePos = do
                     return box { selected = True }
              else
                     return box { selected = False })
-    P.boxes state $= bs'
+    P.boxes state $= bs'  
     return ()
   where (x,y) = (\(Position x' y') -> (int x', int y')) mousePos
 

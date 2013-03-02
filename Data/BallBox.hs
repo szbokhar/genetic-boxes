@@ -8,7 +8,7 @@ import Foreign.C.Types              ( CFloat(..) )
 import Graphics.Rendering.OpenGL    ( GLfloat )
 import System.Random                ( randomRIO )
 
-import Data.Types                   ( Shape(..), Color(..), ColorBall ) 
+import Data.Types                   ( Shape(..), Color(..), ColorBall )
 import Data.Point                   ( Point )
 import GL.Draw                      ( Drawable(..), drawRect, fillCircle
                                     , drawLine, fillTriangle )
@@ -18,9 +18,9 @@ import Program.Simulate             ( score, mate )
 
 
 -- |Datatype for a BallBox.
---  A Ballbox is a box with certain width and height containing 
+--  A Ballbox is a box with certain width and height containing
 --  a number of circles with their center lying inside the box
-data BallBox = 
+data BallBox =
      BallBox { boxId :: Int
              , selected :: Bool
              , size :: (Int,Int)
@@ -37,12 +37,12 @@ instance Drawable BallBox where
             draw $ offset (pointInt p) ball
             draw White
             fillCircle (pointFl $ add (pointInt p) (pointInt cp)) 1 ) bs
-        
+
         -- Draw box border. Hilight red if it is selected
         if sel then draw Red
                else draw White
         drawRect p' (pointGlint $ add p' d')
-      where 
+      where
         (p', d') = (pointGlint p,pointGlint d)      -- Cast points to GLint
         add (x1,y1) (x2,y2) = (x1+x2,y1+y2)         -- Add points
 
@@ -68,17 +68,17 @@ drawBoxMating (x,y) dad mom cs = do
     fillTriangle (320, y'+30) (360, y'+50) (320, y'+ 70)
     -- Draw new children
     forM_ (zip [0..] cs) (\(i,box) -> drawAt (x+380+120*i, y) box )
-  where 
+  where
     y' = glfloat y
 
 
 -- |Convienence function for compactly making a BallBox
-makeBox :: Int -> (Int,Int) 
+makeBox :: Int -> (Int,Int)
                -> [(Int,Int,Int,GLfloat,GLfloat,GLfloat,GLfloat)] -> BallBox
-makeBox bid (w,h) circs = 
-    BallBox bid False (w,h) 
-    $ map (\(x,y,r,cr,cg,cb,ca) -> 
-        (Circle (x,y) r, AlphaColor cr cg cb ca) ) circs 
+makeBox bid (w,h) circs =
+    BallBox bid False (w,h)
+    $ map (\(x,y,r,cr,cg,cb,ca) ->
+        (Circle (x,y) r, AlphaColor cr cg cb ca) ) circs
 
 
 -- |Generates a random BallBox in the IO monad
@@ -97,7 +97,7 @@ randomBox bid (w,h) n = do
 
     -- Return newly made box
     return $ makeBox bid (w,h) randomCircles
-  where 
+  where
     -- Short random function aliases
     rioI = randomRIO :: (Int,Int) -> IO Int
     rioF = randomRIO :: (Float,Float) -> IO Float
@@ -105,9 +105,9 @@ randomBox bid (w,h) n = do
 
 -- |Generates a succinct output string for a BallBox
 info :: BallBox -> String
-info box@(BallBox bid _ _ bs) = 
-    "BoxId: " ++ show bid ++ 
-    "   Count: " ++ show (length bs) ++ 
+info box@(BallBox bid _ _ bs) =
+    "BoxId: " ++ show bid ++
+    "   Count: " ++ show (length bs) ++
     "   Score: " ++ show (fitness box)
 
 
@@ -118,7 +118,7 @@ fitness (BallBox _ _ dim cs) = score dim $ map fst cs
 
 -- |Mates two ball boxes to make a certain number of children
 mateBoxes :: Int -> BallBox -> BallBox -> IO [BallBox]
-mateBoxes n (BallBox _ _ s1 b1) (BallBox _ _ s2 b2) = 
+mateBoxes n (BallBox _ _ s1 b1) (BallBox _ _ s2 b2) =
     forM [1..n] (\_ -> do
         -- Pass essential data to mate function
         (s, cs) <- mate (s1, b1) (s2, b2)

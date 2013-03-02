@@ -13,6 +13,7 @@ import Data.Types       ( Shape(Circle), ColorBall, Color(..) )
 import Data.Point       ( Point )
 import GL.Aliases       ( float )
 
+
 -- |Rates the score for the data in a BallBox (Size and Circles)
 score :: Point Int -> [Shape Int] -> Float
 score (_,_) [] = 200
@@ -38,6 +39,7 @@ score (w,h) cs = areaCovered / 10.0
                           + lineOverlap (0,h) (abs $ w - x) y r
                           + lineOverlap (0,w) (abs $ 0 - y) x r
                           + lineOverlap (0,w) (abs $ h - y) x r
+
 
 -- |Returns the length of the line segment that is overlapped with
 --  a circle.
@@ -67,8 +69,8 @@ lineOverlap (top,bottom) dist offset radius
 -- |Mates two boxes to produce one child
 mate :: (Point Int, [ColorBall]) -> (Point Int, [ColorBall]) 
      -> IO (Point Int, [ColorBall])
-mate (size1@(w,h), b1s) (size2, b2s)
-    | size1 /= size2    = error "mate cannot deal with differnt sizes"  
+mate (size, balls1) (size2, balls2)
+    | size /= size2     = error "mate cannot deal with differnt sizes"  
     | otherwise         = do
         -- Set up all random numbers for mating process
         (selection, newLength) <- listAndLength <$> randomBoolList
@@ -78,33 +80,42 @@ mate (size1@(w,h), b1s) (size2, b2s)
         choices <- add newCircles
                  $ remove badCircles
                  $ choose selection both
-        return (size1, nub choices)
+        return (size, nub choices)
   where 
+    -- Returns a tuple of the list and its length
     listAndLength xs = (xs, length $ filter id xs)
+    -- Generates a random list of true and false values
     randomBoolList = forM [1..length both] (const $ randomRIO (True,False))
+    -- Generates a random list of indicies to remove from a list
     circlesToRemove newLength = do
         b <- rioI (0,min newLength 3)
         forM [1..b] (\i -> rioI (0,newLength-i) )
-    both = b1s++b2s
+    -- Concaenation of both list of circles
+    both = balls1++balls2
 
+    -- Removes the elements whos indicies are given in the first list. 
+    -- Indicies must be in range.
     remove [] xs = xs
     remove (i:is) xs = remove is (del i xs)
       where del j ys = (\(a,b) -> a ++ tail b) $ splitAt j ys 
 
+    -- Generate new circles and add them to the supplied list
     add :: Int -> [ColorBall] -> IO [ColorBall]
     add i xs = do
         new <- forM [1..i] (\_ -> do
-            x <- rioI (0,w)
-            y <- rioI (0,h) 
+            x <- rioI (0,fst size)
+            y <- rioI (0,snd size) 
             r <- rioI (3,20)
             [cr,cg,cb] <- replicateM 3 $ rioF (0.5,1.0)
             return (Circle (x,y) r, AlphaColor  cr cg cb 0.5) )
         return (new ++ xs)
 
+    -- Select the elements in the second list based on the selection list
     choose [] _  = []
     choose _  [] = []
     choose (True:xs) (circle:ys)    = circle : choose xs ys
     choose (_:xs)    (_:ys)         = choose xs ys
 
+    -- Random function aliases
     rioI = randomRIO :: (Int,Int) -> IO Int  
     rioF = randomRIO :: (GLfloat,GLfloat) -> IO GLfloat
