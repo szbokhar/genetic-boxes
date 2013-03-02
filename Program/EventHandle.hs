@@ -31,18 +31,18 @@ timerLoop state = do
     width <- get $ P.width state
     height <- get $ P.height state
 
+    -- Draw depending on drawMode
     case drawMode mode of
-      P.Population -> do
-            bs <- get $ P.boxes state
-            P.drawList state $= (map (\(b,p) -> drawAt p b)
-                $ zip bs $ positions (width, height))
-      P.Mating -> do
-            bs <- get $ P.boxes state
+      P.Population -> do        -- Just draw population
+            boxes <- get $ P.boxes state
+            P.drawList state $= zipWith drawAt (positions (width, height)) boxes
+      P.Mating -> do            -- Draw result of mating process
+            (boxes, half) <- listAndHalflength <$> (get $ P.boxes state)
             P.drawList state $= (zipWith3
-                (\pos (d,m) (k1,k2) -> drawBoxMating pos d m [k1,k2])
-                [(20,x) | x <- [20,140..height-100]]
-                (P.pairup $ take (div (length bs) 2) bs)
-                (P.pairup $ drop (div (length bs) 2) bs))
+                (\pos (d,m) (k1,k2) -> drawBoxMating pos d m [k1,k2] )
+                matingRows
+                (P.pairup $ take half boxes)
+                (P.pairup $ drop half boxes))
       _ -> return ()
 
     -- Manage the mode for automatic simulation
@@ -62,13 +62,19 @@ timerLoop state = do
     -- Make next call to this function
     addTimerCallback (div 1000 30) (timerLoop state)
 
-  where drawMode (P.Automate _ _ P.Mate)    = P.Mating
+  where listAndHalflength xs = (xs, div (length xs) 2)
+        matingRows = [(20,x) | x <- [20,140..height-100]]
+
+        -- Decides actual drawmode based on state drawMode
+        drawMode (P.Automate _ _ P.Mate)    = P.Mating
         drawMode (P.Automate _ _ _)         = P.Population
         drawMode x                          = x
 
+        -- Performs action if in auto mode
         checkMode (P.Automate _ t phase) = Just (t == P.autoTimestep, phase)
         checkMode _                      = Nothing
 
+        -- Updates drawMode if in auto mode
         updateMode (P.Automate 0 0 P.Mate)  = P.Population
         updateMode (P.Automate x 0 P.Mate)  = P.Automate (x-1)
                                                 P.autoTimestep P.Display
@@ -80,14 +86,17 @@ timerLoop state = do
 -- |Process commands for typing input
 processCommands :: P.State -> IO ()
 processCommands state = do
+    -- Print tick only if something had been printed after the previou tick
     prompt <- get $ P.prompt state
     when prompt $ do
         P.prompt state $= False
         putStr "> "
         hFlush stdout
 
+    -- Poll for input and pass if there is none
     hasInput <- hWaitForInput stdin 1
     when hasInput $ do
+        -- If there is input, execute the command
         line <- getLine
         execute (words line)
         P.prompt state $= True
