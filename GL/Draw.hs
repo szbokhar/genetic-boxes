@@ -1,9 +1,9 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 
-module GL.Draw 
+module GL.Draw
     ( Point, Drawable(..)
     , drawPoint, drawLine, drawRect, fillRect, drawCircle, fillCircle
-    , drawTriangle, fillTriangle ) 
+    , drawTriangle, fillTriangle )
 where
 
 import Graphics.Rendering.OpenGL
@@ -19,13 +19,13 @@ class Drawable a where
     drawAt _ = draw
 
 -- |Function that draws a single pixel
-drawPoint :: (Num a, VertexComponent a) => Point a -> IO ()
-drawPoint (x,y) = renderPrimitive Points $ vertex $ Vertex3 x y 0
+drawPoint :: (Enum a, Floating a, VertexComponent a) => Point a -> IO ()
+drawPoint (x,y) = fillCircle (x,y) 1
 
 -- |Function that draws a line between two points
 drawLine :: (Num a, VertexComponent a) => Point a -> Point a -> IO ()
-drawLine p1 p2 = renderPrimitive Lines 
-    $ mapM_ (\(x,y) -> vertex $ Vertex3 x y 0) 
+drawLine p1 p2 = renderPrimitive Lines
+    $ mapM_ (\(x,y) -> vertex $ Vertex3 x y 0 )
     $ lineV p1 p2
 
 -- |Function that draws a rectangle between two points
@@ -36,10 +36,10 @@ drawRect = drawRect' LineLoop
 fillRect :: (Num a, VertexComponent a) => Point a -> Point a -> IO ()
 fillRect = drawRect' Quads
 
-drawRect' :: (Num a, VertexComponent a) => 
+drawRect' :: (Num a, VertexComponent a) =>
              PrimitiveMode -> Point a -> Point a -> IO ()
 drawRect' prim p1 p2 = renderPrimitive prim
-    $ mapM_ (\(x,y) -> vertex $ Vertex3 x y 0) 
+    $ mapM_ (\(x,y) -> vertex $ Vertex3 x y 0 )
     $ rectV p1 p2
 
 -- |Function that draws a circle centered at the point with a radius
@@ -50,26 +50,26 @@ drawCircle = drawCircle' LineLoop
 fillCircle :: (Floating a, Enum a, VertexComponent a) => Point a -> a -> IO ()
 fillCircle = drawCircle' Polygon
 
-drawCircle' :: (Floating a, Enum a, Num a, VertexComponent a) => 
+drawCircle' :: (Floating a, Enum a, Num a, VertexComponent a) =>
                PrimitiveMode -> Point a -> a -> IO ()
 drawCircle' prim p1 r = renderPrimitive prim
-    $ mapM_ (\(x,y) -> vertex $ Vertex3 x y 0) 
+    $ mapM_ (\(x,y) -> vertex $ Vertex3 x y 0 )
     $ circleV p1 r
 
 -- |Function that draws a triangle with 3 points
-drawTriangle :: (Floating a, Enum a, VertexComponent a) 
+drawTriangle :: (Floating a, Enum a, VertexComponent a)
              => Point a -> Point a -> Point a -> IO ()
 drawTriangle = drawTriangle' Triangles
 
 -- |Function that fills a circle centered around a point with a radius
-fillTriangle :: (Floating a, Enum a, VertexComponent a) 
+fillTriangle :: (Floating a, Enum a, VertexComponent a)
              => Point a -> Point a -> Point a -> IO ()
 fillTriangle = drawTriangle' Polygon
 
-drawTriangle' :: (Num a, VertexComponent a) => 
+drawTriangle' :: (Num a, VertexComponent a) =>
                  PrimitiveMode -> Point a -> Point a -> Point a -> IO ()
 drawTriangle' prim p1 p2 p3 = renderPrimitive prim
-    $ mapM_ (\(x,y) -> vertex $ Vertex3 x y 0) [p1, p2, p3]
+    $ mapM_ (\(x,y) -> vertex $ Vertex3 x y 0 ) [p1, p2, p3]
 
 
 

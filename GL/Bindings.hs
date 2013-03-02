@@ -1,4 +1,4 @@
-module GL.Bindings 
+module GL.Bindings
     ( display, idle, reshape )
 where
 
@@ -13,13 +13,16 @@ import qualified Program.State as P
 -- |Callback to draw on screen
 display :: P.State -> IO ()
 display state = do
+    -- Clear Buffer
     clearColor $= Color4 zerof zerof zerof onef
     clear [ ColorBuffer, DepthBuffer ]
 
+    -- Get state variables
     draws <- get $ P.drawList state
     width <- glfloat <$> get (P.width state)
     height <- glfloat <$> get (P.height state)
 
+    -- Draw contents of state
     loadIdentity
     translate $ Vector3 (-onef) onef zerof
     scale (2/width) (-2/height) onef
