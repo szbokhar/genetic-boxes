@@ -12,6 +12,7 @@ import System.Exit          ( exitSuccess )
 import System.IO            ( hWaitForInput, hFlush, stdin, stdout )
 
 import Data.BallBox         ( drawBoxMating )
+import Data.Point           ( Point )
 import GL.Draw              ( Drawable(drawAt) )
 import GL.Aliases           ( readInt )
 import Program.InputHandle
@@ -64,7 +65,7 @@ timerLoop state = do
     addTimerCallback (div 1000 30) (timerLoop state)
 
   where listAndHalflength xs = (xs, div (length xs) 2)
-        matingRows = [(20,x) | x <- [20,140..]]
+        matingRows = [(20,x) | x <- [20,140..]] :: [Point Int]
 
         -- Decides actual drawmode based on state drawMode
         drawMode (P.Automate _ _ P.Mate)    = P.Mating
@@ -119,4 +120,4 @@ processCommands state = do
                                 P.Automate (fromJust n) P.autoTimestep P.Display
           where n = readInt wn
         execute (x:_)       = putStrLn $ "Error, command not recognized: " ++ x
-        execute xs          = return ()
+        execute _           = return ()

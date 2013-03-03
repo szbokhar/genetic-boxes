@@ -67,7 +67,7 @@ keyboardChar state 'h' _ = do
     P.prompt state $= True
 
 -- Catch all
-keyboardChar _ key (Position x y) = return ()
+keyboardChar _ _ _ = return ()
 
 
 -- |Callback for keyboard key up actions
@@ -94,11 +94,11 @@ passiveMotion state mousePos = do
     boxes <- get (P.boxes state)
     -- Find out which pox (if any) the mouse if hovering over
     bs' <- forM (zip (positions (width,height)) boxes)
-           (\(boxPosition, box@(BallBox _ selected boxSize _) ) ->
+           (\(boxPosition, box@(BallBox _ boxIsSelected boxSize _) ) ->
                 -- If mouse over box
                 if mouseOverBox boxPosition boxSize then
-                    do unless selected $ do     -- If the box wasnt selected
-                           print (info box)     -- before, the output the status
+                    do unless boxIsSelected $ do    -- If the box wasnt selected
+                           print (info box)         -- before, the output the status
                            P.prompt state $= True
                        return box { selected = True }   -- Mark box as selected
                 else   return box { selected = False } )-- Unmark

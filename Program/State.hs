@@ -25,14 +25,14 @@ defaultCircleCount = 15
 --  Typically passed to all callback functions so that they may
 --  have a means to communicate.
 data State =
-     State  { width         :: IORef GLsizei
-            , height        :: IORef GLsizei
-            , close         :: IORef Bool
-            , prompt        :: IORef Bool
-            , drawList      :: IORef [IO ()]
-            , drawMode      :: IORef DisplayMode
-            , boxes         :: IORef [BallBox]
-            , nextBoxId     :: IORef Int }
+     State  { width     :: IORef GLsizei        -- Width of the window
+            , height    :: IORef GLsizei        -- Height of the widow
+            , close     :: IORef Bool           -- Flag to quit program
+            , prompt    :: IORef Bool           -- Flag to print prompt tick
+            , drawList  :: IORef [IO ()]        -- List of draws to execute
+            , drawMode  :: IORef DisplayMode    -- How to set up draw
+            , boxes     :: IORef [BallBox]      -- Boxes in population
+            , nextBoxId :: IORef Int }          -- ID tp give next box generated
 
 -- |Data type to keep trak of the display mode of the program
 data DisplayMode = Population | Mating | Automate Int Int AlgorithmPhases
@@ -58,34 +58,41 @@ initializeState = do
 
 
 -- Functions to update the state of the population
+increasePopulation :: State -> Int -> IO ()
 increasePopulation state n = do
+    -- Update box id counter
     bid <- get $ nextBoxId state
     nextBoxId state $= bid + n
+    -- Generate n new boxes
     newBoxes <- forM [1..n] $ (\i -> do
         randomBox (bid+i) (100,100) defaultCircleCount)
-    bs <- get $ boxes state
-    boxes state $= bs++newBoxes
+    -- Update the state
+    xs <- get $ boxes state
+    boxes state $= xs++newBoxes
 
 -- |Sorts the population
 rankPopulation :: State -> IO ()
 rankPopulation state = do
-    bs <- get $ boxes state
-    boxes state $= sort bs
+    xs <- get $ boxes state
+    boxes state $= sort xs
 
 -- |Keeps the first n of the population
 selectPopulation :: State -> Int -> IO ()
 selectPopulation state n = do
-    bs <- get $ boxes state
-    boxes state $= take n bs
+    xs <- get $ boxes state
+    boxes state $= take n xs
 
 -- |Pairs and mates the existing members of the population
 matePopulation :: State -> IO ()
 matePopulation state = do
-    bs <- get $ boxes state
+    -- Get relavant data from state
+    xs <- get $ boxes state
     startId <- get $ nextBoxId state
-    newChildren <- concat <$> (mapM (uncurry $ mateBoxes 2) $ pairup bs )
+    -- Generate new children
+    newChildren <- concat <$> (mapM (uncurry $ mateBoxes 2) $ pairup xs )
     let idChildren = zipWith (\bb n -> bb { boxId = n }) newChildren [startId..]
-    boxes state $= (bs ++ idChildren)
+    -- Update state
+    boxes state $= (xs ++ idChildren)
     drawMode state $= Mating
 
 
