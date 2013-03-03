@@ -48,9 +48,10 @@ keyboardChar state 'd' _ = do
 keyboardChar state 'a' _ = do
     putStrLn "Enter the number of iterations you want to run"
     ln <- readInt <$> filter (/='\n') <$> getLine
-    if (isNothing ln)
-        then (putStrLn "You must enter the number of cycles")
-        else (P.drawMode state $= P.Automate (fromJust ln) P.autoTimestep P.Display)
+    if isNothing ln then
+        putStrLn "You must enter the number of cycles"
+     else
+        P.drawMode state $= P.Automate (fromJust ln) P.autoTimestep P.Display
     return ()
 
 -- Display help

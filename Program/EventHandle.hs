@@ -39,12 +39,12 @@ timerLoop state = do
             boxes <- get $ P.boxes state
             P.drawList state $= zipWith drawAt (positions (width, height)) boxes
       P.Mating -> do            -- Draw result of mating process
-            (boxes, half) <- listAndHalflength <$> (get $ P.boxes state)
-            P.drawList state $= (zipWith3
+            (boxes, half) <- listAndHalflength <$> get (P.boxes state)
+            P.drawList state $= zipWith3
                 (\pos (d,m) (k1,k2) -> drawBoxMating pos d m [k1,k2] )
                 matingRows
                 (P.pairup $ take half boxes)
-                (P.pairup $ drop half boxes))
+                (P.pairup $ drop half boxes)
       _ -> return ()
 
     -- Manage the mode for automatic simulation

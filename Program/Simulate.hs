@@ -24,7 +24,7 @@ score (w,h) cs = areaCovered / 10.0
     -- Number of circles
     numOfCircles = float $ length cs
     -- Amount of border covered by circles
-    borderCovered = (sum $ map (borderOverlap . (\(Circle (x,y) r) -> (x,y,r))) cs)
+    borderCovered = sum $ map (borderOverlap . (\(Circle (x,y) r) -> (x,y,r))) cs
     -- Total area covered by circles
     areaCovered = float $ length
                 $ foldl' (\xs (Circle (x,y) r) ->

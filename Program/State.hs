@@ -64,8 +64,8 @@ increasePopulation state n = do
     bid <- get $ nextBoxId state
     nextBoxId state $= bid + n
     -- Generate n new boxes
-    newBoxes <- forM [1..n] $ (\i -> do
-        randomBox (bid+i) (100,100) defaultCircleCount)
+    newBoxes <- forM [1..n]
+                     (\i -> randomBox (bid+i) (100,100) defaultCircleCount )
     -- Update the state
     xs <- get $ boxes state
     boxes state $= xs++newBoxes
@@ -89,7 +89,7 @@ matePopulation state = do
     xs <- get $ boxes state
     startId <- get $ nextBoxId state
     -- Generate new children
-    newChildren <- concat <$> (mapM (uncurry $ mateBoxes 2) $ pairup xs )
+    newChildren <- concat <$> mapM (uncurry $ mateBoxes 2) (pairup xs)
     let idChildren = zipWith (\bb n -> bb { boxId = n }) newChildren [startId..]
     -- Update state
     boxes state $= (xs ++ idChildren)
