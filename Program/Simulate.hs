@@ -16,10 +16,11 @@ import GL.Aliases       ( float )
 
 -- |Rates the score for the data in a BallBox (Size and Circles)
 score :: Point Int -> [Shape Int] -> Float
-score (_,_) [] = 200
-score (w,h) cs = areaCovered / 10.0
-               + borderCovered * 10.0
-               - numOfCircles * 3.0
+score (_,_) [] = 20000
+score (w,h) cs = circleOverlap cs -- / 10
+               + areaCovered
+               + borderCovered ** 2
+               - numOfCircles * 3
   where
     -- Number of circles
     numOfCircles = float $ length cs
@@ -33,12 +34,29 @@ score (w,h) cs = areaCovered / 10.0
                           in dx*dx + dy*dy > r*r )
                       xs )
                   [(x,y) | y <- [0..h], x <- [0..w]] cs
+    -- Amount of area covered by two cicles
+    circleOverlap [] = 0
+    circleOverlap (x:xs) = sum (map (overlap x) xs) + circleOverlap xs
 
     -- Computes the number of pixels a circle is overlapping the border
     borderOverlap (x,y,r) = lineOverlap (0,h) (abs $ 0 - x) y r
                           + lineOverlap (0,h) (abs $ w - x) y r
                           + lineOverlap (0,w) (abs $ 0 - y) x r
                           + lineOverlap (0,w) (abs $ h - y) x r
+
+    -- Computes the overlap between two circles
+    overlap :: Shape Int -> Shape Int -> Float
+    overlap (Circle (x1,y1) r1) (Circle (x2,y2) r2)
+        | d > float (r1+r2)         = 0
+        | d < (float . abs) (r1-r2) = pi * (float (min r1 r2))**2
+        | otherwise                 = part1 + part2 - part3
+      where part1 = r**2 * acos ( (d**2 + r**2 - s**2) / (2*d*r) )
+            part2 = s**2 * acos ( (d**2 + s**2 - r**2) / (2*d*s) )
+            part3 = 0.5 * sqrt ( (-d+r+s)*(d+r-s)*(d-r+s)*(d+r+s) )
+
+            d = sqrt (dx**2 + dy**2)
+            (r, s) = (float r1, float r2)
+            (dx, dy) = (float (x1-x2), float (y1-y2))
 
 
 -- |Returns the length of the line segment that is overlapped with
@@ -75,7 +93,7 @@ mate (size1, balls1) (size2, balls2)
         -- Set up all random numbers for mating process
         (selected, newLength) <- listAndLength <$> randomBoolList
         badCircles <- circlesToRemove newLength
-        newCircles <- rioI (0,3)
+        newCircles <- rioI (0,5)
         -- generate the new list using the old ones
         choices <- add newCircles
                  $ remove badCircles
@@ -88,7 +106,7 @@ mate (size1, balls1) (size2, balls2)
     randomBoolList = forM [1..length circles] (const $ randomRIO (True,False))
     -- Generates a random list of indicies to remove from a list
     circlesToRemove n = do
-        b <- rioI (0,min n 3)
+        b <- rioI (0,min n 5)
         forM [1..b] (\i -> rioI (0,n-i) )
     -- Concaenation of allCircles list of circles
     circles = balls1++balls2
@@ -123,3 +141,4 @@ mate (size1, balls1) (size2, balls2)
     -- Random function aliases
     rioI = randomRIO :: (Int,Int) -> IO Int
     rioF = randomRIO :: (GLfloat,GLfloat) -> IO GLfloat
+

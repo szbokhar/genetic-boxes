@@ -15,7 +15,7 @@ import Data.BallBox ( BallBox(boxId), mateBoxes, randomBox )
 
 -- |Controls the speed of transition from phases of automate mode
 autoTimestep :: Int
-autoTimestep = 5
+autoTimestep = 3
 
 -- |Controls the speed of transition from phases of automate mode
 defaultCircleCount :: Int

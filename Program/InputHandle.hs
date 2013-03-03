@@ -31,6 +31,10 @@ keyboardChar state 's' _ = P.selectPopulation state 10
 -- Mate population
 keyboardChar state 'm' _ = P.matePopulation state
 
+-- Mate population
+keyboardChar state 'g' _ =
+    P.drawMode state $= P.Automate 0 P.autoTimestep P.Display
+
 -- Add of remove one member form the pipulation
 keyboardChar state '=' _ = P.increasePopulation state 1
 keyboardChar state '-' _ = do

@@ -80,6 +80,8 @@ timerLoop state = do
         updateMode (P.Automate 0 0 P.Mate)  = P.Population
         updateMode (P.Automate x 0 P.Mate)  =
             P.Automate (x-1) P.autoTimestep P.Display
+        updateMode (P.Automate x 0 P.Select)   =
+            P.Automate x (P.autoTimestep+5) P.Mate
         updateMode (P.Automate x 0 phase)   =
             P.Automate x P.autoTimestep (succ phase)
         updateMode (P.Automate x t phase)   = P.Automate x (t-1) phase

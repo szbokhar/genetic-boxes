@@ -89,7 +89,7 @@ randomBox bid (w,h) n = do
         -- Random geomerty
         x <- rioI (0,w)
         y <- rioI (0,h)
-        r <- rioI (3,20)
+        r <- rioI (5,20)
         -- Random light color
         [cr,cg,cb] <- replicateM 3 $ rioF (0.5,1.0)
         -- Make shorthand circle reperesentation
