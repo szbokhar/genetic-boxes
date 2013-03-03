@@ -1,4 +1,4 @@
-module GL.Aliases 
+module GL.Aliases
     ( setColor4
     , glfloat, onef, zerof
     , int, glint, float
@@ -6,12 +6,12 @@ module GL.Aliases
     , readInt )
 where
 
-import Graphics.Rendering.OpenGL   
-                        ( GLint, GLfloat, Color(color), Color4(Color4) ) 
+import Graphics.Rendering.OpenGL
+                        ( GLint, GLfloat, Color(color), Color4(Color4) )
 
-import Data.Point       ( Point )    
+import Data.Point       ( Point )
 
--- |Convienence function for setting the color without having to 
+-- |Convienence function for setting the color without having to
 --  explicitly cast one of the arguments to GLfloat
 setColor4 :: GLfloat -> GLfloat -> GLfloat -> GLfloat -> IO ()
 setColor4 r g b a = color $ Color4 r g b a

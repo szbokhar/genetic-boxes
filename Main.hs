@@ -36,7 +36,7 @@ main = do
     mouseCallback           $= Just (mouse state)
     motionCallback          $= Just (mouseMotion state)
     passiveMotionCallback   $= Just (passiveMotion state)
-    
+
     -- Set up main control loop
     addTimerCallback (div 1000 30) (timerLoop state)
 
