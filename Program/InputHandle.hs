@@ -91,19 +91,19 @@ passiveMotion state mousePos = do
     -- Get width, height and boxes with their positions
     width <- int <$> get (P.width state)
     height <- int <$> get (P.height state)
-    bs <- zip (positions (width,height)) <$> get (P.boxes state)
+    boxes <- get (P.boxes state)
     -- Find out which pox (if any) the mouse if hovering over
-    bs' <- forM bs
-           (\( (x1,y1) , box@(BallBox _ sel (w,h) _) ) ->
-            if mouseOverBox (x1,y1) (w,h) then
-                 do unless sel $ do
-                        print $ info box
-                        P.prompt state $= True
-                    return box { selected = True }
-             else
-                    return box { selected = False } )
+    bs' <- forM (zip (positions (width,height)) boxes)
+           (\(boxPosition, box@(BallBox _ selected boxSize _) ) ->
+                -- If mouse over box
+                if mouseOverBox boxPosition boxSize then
+                    do unless selected $ do     -- If the box wasnt selected
+                           print (info box)     -- before, the output the status
+                           P.prompt state $= True
+                       return box { selected = True }   -- Mark box as selected
+                else   return box { selected = False } )-- Unmark
+    -- Update boxes list
     P.boxes state $= bs'
-    return ()
   where
     (x,y) = (\(Position x' y') -> (int x', int y')) mousePos
     mouseOverBox (x1,y1) (w,h) = and [x > x1, y > y1, x < x1+w, y < y1+h]

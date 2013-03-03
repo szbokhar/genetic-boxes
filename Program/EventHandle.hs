@@ -77,17 +77,17 @@ timerLoop state = do
 
         -- Updates drawMode if in auto mode
         updateMode (P.Automate 0 0 P.Mate)  = P.Population
-        updateMode (P.Automate x 0 P.Mate)  = P.Automate (x-1)
-                                                P.autoTimestep P.Display
-        updateMode (P.Automate x 0 phase)   = P.Automate x
-                                                P.autoTimestep (succ phase)
+        updateMode (P.Automate x 0 P.Mate)  =
+            P.Automate (x-1) P.autoTimestep P.Display
+        updateMode (P.Automate x 0 phase)   =
+            P.Automate x P.autoTimestep (succ phase)
         updateMode (P.Automate x t phase)   = P.Automate x (t-1) phase
         updateMode x = x
 
 -- |Process commands for typing input
 processCommands :: P.State -> IO ()
 processCommands state = do
-    -- Print tick only if something had been printed after the previou tick
+    -- Print tick only if something had been printed after the previous tick
     prompt <- get $ P.prompt state
     when prompt $ do
         P.prompt state $= False
