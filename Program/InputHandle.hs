@@ -29,7 +29,9 @@ keyboardChar state 'r' _ = P.rankPopulation state
 keyboardChar state 's' _ = P.selectPopulation state 10
 
 -- Mate population
-keyboardChar state 'm' _ = P.matePopulation state
+keyboardChar state 'm' _ = do
+    P.drawMode state $= P.Mating
+    P.matePopulation state
 
 -- Mate population
 keyboardChar state 'g' _ =
@@ -103,7 +105,7 @@ passiveMotion state mousePos = do
                 -- If mouse over box
                 if mouseOverBox boxPosition boxSize then
                     do unless boxIsSelected $ do    -- If the box wasnt selected
-                           print (info box)         -- before, the output the status
+                           putStrLn (info box)      -- before, the output the status
                            P.prompt state $= True
                        return box { selected = True }   -- Mark box as selected
                 else   return box { selected = False } )-- Unmark

@@ -2,6 +2,7 @@ module Program.State
     ( State(..), DisplayMode(..), AlgorithmPhases(..), initializeState
     , autoTimestep, defaultCircleCount
     , increasePopulation, rankPopulation, selectPopulation, matePopulation
+    , preMate
     , pairup )
 where
 
@@ -10,12 +11,13 @@ import Control.Monad        ( forM )
 import Data.IORef           ( IORef, newIORef )
 import Data.List            ( sort )
 import Graphics.Rendering.OpenGL ( GLsizei, ($=), get )
+import System.Random.Shuffle ( shuffleM )
 
 import Data.BallBox ( BallBox(boxId), mateBoxes, randomBox )
 
 -- |Controls the speed of transition from phases of automate mode
 autoTimestep :: Int
-autoTimestep = 3
+autoTimestep = 1
 
 -- |Controls the speed of transition from phases of automate mode
 defaultCircleCount :: Int
@@ -32,14 +34,22 @@ data State =
             , drawList  :: IORef [IO ()]        -- List of draws to execute
             , drawMode  :: IORef DisplayMode    -- How to set up draw
             , boxes     :: IORef [BallBox]      -- Boxes in population
-            , nextBoxId :: IORef Int }          -- ID tp give next box generated
+            , nextBoxId :: IORef Int            -- ID tp give next box generated
+            , gens      :: IORef Int }          -- Number of generations
 
 -- |Data type to keep trak of the display mode of the program
-data DisplayMode = Population | Mating | Automate Int Int AlgorithmPhases
+data DisplayMode = None
+                 | Population
+                 | Mating
+                 | Automate Int Int AlgorithmPhases
   deriving (Show, Read, Eq)
 
 -- |Data type to keep track of the phase of the automate drun of the algorithm
-data AlgorithmPhases = Display | Sort | Select | Mate
+data AlgorithmPhases = Display
+                     | Sort
+                     | Select
+                     | Shuffle
+                     | Mate
   deriving (Show, Read, Eq, Enum)
 
 -- |contains an initialized State value
@@ -53,7 +63,8 @@ initializeState = do
     mode <- newIORef Population
     b <- newIORef []
     bid <- newIORef 0
-    return (State w h c p d mode b bid)
+    g <- newIORef 0
+    return (State w h c p d mode b bid g)
 
 
 
@@ -82,6 +93,13 @@ selectPopulation state n = do
     xs <- get $ boxes state
     boxes state $= take n xs
 
+-- |Do stuff before mating
+preMate :: State -> IO ()
+preMate state = do
+    bs <- get $ boxes state
+    shuffled <- shuffleM bs
+    boxes state $= shuffled
+
 -- |Pairs and mates the existing members of the population
 matePopulation :: State -> IO ()
 matePopulation state = do
@@ -93,7 +111,8 @@ matePopulation state = do
     let idChildren = zipWith (\bb n -> bb { boxId = n }) newChildren [startId..]
     -- Update state
     boxes state $= (xs ++ idChildren)
-    drawMode state $= Mating
+    g <- get $ gens state
+    gens state $= g+1
 
 
 

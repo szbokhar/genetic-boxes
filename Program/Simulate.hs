@@ -1,10 +1,11 @@
 module Program.Simulate
-    ( score, mate )
+    ( score, scoreParts, mate )
 where
 
 import Control.Applicative ( (<$>) )
 import Control.Monad    ( forM, replicateM )
 import Data.List        ( nub, foldl' )
+import Data.Maybe       ( isNothing )
 import Graphics.Rendering.OpenGL
                         ( GLfloat )
 import System.Random    ( randomRIO )
@@ -13,21 +14,32 @@ import Data.Types       ( Shape(Circle), ColorBall, Color(..) )
 import Data.Point       ( Point )
 import GL.Aliases       ( float )
 
-
--- |Rates the score for the data in a BallBox (Size and Circles)
+-- |Rates the ball box's score
 score :: Point Int -> [Shape Int] -> Float
-score (_,_) [] = 20000
-score (w,h) cs = circleOverlap cs -- / 10
-               + areaCovered
-               + borderCovered ** 2
-               - numOfCircles * 3
+score size circles
+    | isNothing breakdown = 40000
+    | otherwise           = circleOverlap * 10
+                          + areaFree
+                          + borderCovered * 10
+                          - circleCount * 10
+  where Just (circleOverlap, areaFree, borderCovered, circleCount) = breakdown
+        breakdown = scoreParts size circles
+
+
+-- |Computes the different portions of the score
+scoreParts :: Point Int -> [Shape Int] -> Maybe (Float, Float, Float, Float)
+scoreParts (_,_) [] = Nothing
+scoreParts (w,h) cs = Just ( circleOverlap cs
+                           , areaFree
+                           , borderCovered
+                           , numOfCircles)
   where
     -- Number of circles
     numOfCircles = float $ length cs
     -- Amount of border covered by circles
     borderCovered = sum $ map (borderOverlap . (\(Circle (x,y) r) -> (x,y,r))) cs
     -- Total area covered by circles
-    areaCovered = float $ length
+    areaFree = float $ length
                 $ foldl' (\xs (Circle (x,y) r) ->
                       filter (\(px, py) ->
                           let dx=px-x; dy=py-y
@@ -106,7 +118,7 @@ mate (size1, balls1) (size2, balls2)
     randomBoolList = forM [1..length circles] (const $ randomRIO (True,False))
     -- Generates a random list of indicies to remove from a list
     circlesToRemove n = do
-        b <- rioI (0,min n 5)
+        b <- rioI (0,min n 2)
         forM [1..b] (\i -> rioI (0,n-i) )
     -- Concaenation of allCircles list of circles
     circles = balls1++balls2

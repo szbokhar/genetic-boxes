@@ -14,7 +14,7 @@ import GL.Draw                      ( Drawable(..), drawRect, fillCircle
                                     , drawLine, fillTriangle )
 
 import GL.Aliases                   ( glfloat, pointInt, pointFl, pointGlint )
-import Program.Simulate             ( score, mate )
+import Program.Simulate             ( score, scoreParts, mate )
 
 
 -- |Datatype for a BallBox.
@@ -105,10 +105,15 @@ randomBox bid (w,h) n = do
 
 -- |Generates a succinct output string for a BallBox
 info :: BallBox -> String
-info box@(BallBox bid _ _ bs) =
-    "BoxId: " ++ show bid ++
-    "   Count: " ++ show (length bs) ++
-    "   Score: " ++ show (fitness box)
+info box@(BallBox bid _ dimentions bs) =
+    "Id: " ++ show bid ++
+    "\tS: " ++ show (fitness box) ++
+    "\tO: " ++ show o ++
+    "\tA: " ++ show a ++
+    "\tL: " ++ show l ++
+    "\tC: " ++ show c
+  where Just (o, a, l, c) = parts
+        parts = scoreParts dimentions (map fst bs)
 
 
 -- |Evaluates the fitness of a BallBox

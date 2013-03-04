@@ -11,10 +11,10 @@ import Graphics.UI.GLUT
 import System.Exit          ( exitSuccess )
 import System.IO            ( hWaitForInput, hFlush, stdin, stdout )
 
-import Data.BallBox         ( drawBoxMating )
+import Data.BallBox         ( drawBoxMating, fitness )
 import Data.Point           ( Point )
 import GL.Draw              ( Drawable(drawAt) )
-import GL.Aliases           ( readInt )
+import GL.Aliases           ( readInt, float )
 import Program.InputHandle
                             ( keyboardChar, keyboardCharUp, mouse, mouseMotion
                             , passiveMotion, positions )
@@ -33,6 +33,22 @@ timerLoop state = do
     width <- get $ P.width state
     height <- get $ P.height state
 
+    -- Manage the mode for automatic simulation
+    case checkMode mode of
+      Just (True, P.Display) -> return ()
+      Just (True, P.Sort) -> P.rankPopulation state
+      Just (True, P.Select) -> do
+          P.selectPopulation state 10
+          generations <- get $ P.gens state
+          when (generations /= 0 && generations `mod` 20 == 0) $ do
+              bs <- get $ P.boxes state
+              putStrLn $ "Average Fitness is "
+                      ++ show (sum (map fitness bs) / float (length bs))
+              P.prompt state $= True
+      Just (True, P.Shuffle) -> return () --P.preMate state
+      Just (True, P.Mate) -> P.matePopulation state
+      _ -> return ()
+
     -- Draw depending on drawMode
     case drawMode mode of
       P.Population -> do        -- Just draw population
@@ -47,15 +63,10 @@ timerLoop state = do
                 (P.pairup $ drop half boxes)
       _ -> return ()
 
-    -- Manage the mode for automatic simulation
-    case checkMode mode of
-      Just (True, P.Display) -> return ()
-      Just (True, P.Sort) -> P.rankPopulation state
-      Just (True, P.Select) -> P.selectPopulation state 10
-      Just (True, P.Mate) -> P.matePopulation state
-      _ -> return ()
-
+    -- Update mode
     P.drawMode state $= updateMode mode
+
+    -- Output status after number of generations
 
     -- User interaction
     processCommands state
@@ -80,8 +91,6 @@ timerLoop state = do
         updateMode (P.Automate 0 0 P.Mate)  = P.Population
         updateMode (P.Automate x 0 P.Mate)  =
             P.Automate (x-1) P.autoTimestep P.Display
-        updateMode (P.Automate x 0 P.Select)   =
-            P.Automate x (P.autoTimestep+5) P.Mate
         updateMode (P.Automate x 0 phase)   =
             P.Automate x P.autoTimestep (succ phase)
         updateMode (P.Automate x t phase)   = P.Automate x (t-1) phase
@@ -108,6 +117,9 @@ processCommands state = do
         execute ["mate"]    = P.matePopulation state
         execute ["rank"]    = P.rankPopulation state
         execute ["add"]     = P.increasePopulation state 1
+        execute ["reset"]   = do
+            P.gens state $= 0
+            P.boxes state $= []
         execute ["select",wn]
             | isNothing n   = putStrLn "select must be supplied with a number"
             | otherwise     = P.selectPopulation state (fromJust n)
