@@ -16,4 +16,4 @@ dist/setup-config:
 	cabal configure
 
 doc: dist/setup-config
-	cabal haddock --executables
+	cabal haddock --executables --hyperlink-sources

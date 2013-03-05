@@ -19,3 +19,10 @@ executable gui
   -- other-modules:
   build-depends:       base >= 4.5, OpenGL >= 2.2, GLUT >= 2.1, random >= 1.0,
                        random-shuffle >= 0.0
+
+library
+  exposed-modules:     Data.BallBox, Data.Point, Data.Types, 
+                       GL.Aliases, GL.Bindings, GL.Draw, 
+                       Program.EventHandle, Program.InputHandle, Program.Simulate, Program.State
+  -- other-modules:       
+  build-depends:       base ==4.5.*, OpenGL ==2.6.*, GLUT ==2.3.*, random ==1.0.*, random-shuffle ==0.0.*
