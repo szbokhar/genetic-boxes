@@ -14,8 +14,8 @@ category:            Graphics
 build-type:          Simple
 cabal-version:       >=1.8
 
-executable gen
-  main-is:             Main.hs
+executable gui
+  main-is:             GuiInteractive.hs
   -- other-modules:
   build-depends:       base >= 4.5, OpenGL >= 2.2, GLUT >= 2.1, random >= 1.0,
                        random-shuffle >= 0.0

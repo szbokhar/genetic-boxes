@@ -18,8 +18,8 @@ import GL.Aliases       ( float )
 score :: Point Int -> [Shape Int] -> Float
 score size circles
     | isNothing breakdown = 40000
-    | otherwise           = circleOverlap * 10
-                          + areaFree
+    | otherwise           = circleOverlap * 3
+                          + areaFree * 5
                           + borderCovered * 10
                           - circleCount * 10
   where Just (circleOverlap, areaFree, borderCovered, circleCount) = breakdown

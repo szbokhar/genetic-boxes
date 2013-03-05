@@ -1,4 +1,4 @@
-name = gen
+name = gui
 
 run: build
 	dist/build/$(name)/$(name)

@@ -45,7 +45,7 @@ timerLoop state = do
               putStrLn $ "Average Fitness is "
                       ++ show (sum (map fitness bs) / float (length bs))
               P.prompt state $= True
-      Just (True, P.Shuffle) -> return () --P.preMate state
+      Just (True, P.Shuffle) -> P.preMate state
       Just (True, P.Mate) -> P.matePopulation state
       _ -> return ()
 
