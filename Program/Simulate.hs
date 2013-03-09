@@ -69,6 +69,7 @@ scoreParts (w,h) cs = Just ( circleOverlap cs
             d = sqrt (dx**2 + dy**2)
             (r, s) = (float r1, float r2)
             (dx, dy) = (float (x1-x2), float (y1-y2))
+    overlap _ _ = error "Overlap only supported for circle"
 
 
 -- |Returns the length of the line segment that is overlapped with
