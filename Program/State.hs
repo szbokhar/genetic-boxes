@@ -14,6 +14,7 @@ import Graphics.Rendering.OpenGL ( GLsizei, ($=), get )
 import System.Random.Shuffle ( shuffleM )
 
 import Data.BallBox ( BallBox(boxId), mateBoxes, randomBox )
+import Program.ParseArguments
 
 -- |Controls the speed of transition from phases of automate mode
 autoTimestep :: Int
@@ -27,10 +28,12 @@ defaultCircleCount = 15
 --  Typically passed to all callback functions so that they may
 --  have a means to communicate.
 data State =
-     State  { width     :: IORef GLsizei        -- Width of the window
+     State  { msPerFrame:: Int                  -- Ms per frame
+            , width     :: IORef GLsizei        -- Width of the window
             , height    :: IORef GLsizei        -- Height of the widow
             , close     :: IORef Bool           -- Flag to quit program
             , prompt    :: IORef Bool           -- Flag to print prompt tick
+
             , drawList  :: IORef [IO ()]        -- List of draws to execute
             , drawMode  :: IORef DisplayMode    -- How to set up draw
             , boxes     :: IORef [BallBox]      -- Boxes in population
@@ -53,18 +56,22 @@ data AlgorithmPhases = Display
   deriving (Show, Read, Eq, Enum)
 
 -- |contains an initialized State value
-initializeState :: IO State
-initializeState = do
+initializeState :: [String] -> IO State
+initializeState arguments = do
+    let ms = 1000 `div` 60
     w <- newIORef 0
     h <- newIORef 0
     c <- newIORef False
     p <- newIORef True
+
+    print (parseArguments defaultOptions arguments)
+
     d <- newIORef []
     mode <- newIORef Population
     b <- newIORef []
     bid <- newIORef 0
     g <- newIORef 0
-    return (State w h c p d mode b bid g)
+    return (State ms w h c p d mode b bid g)
 
 
 

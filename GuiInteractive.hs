@@ -2,6 +2,7 @@ module Main ( main ) where
 
 import Graphics.Rendering.OpenGL
 import Graphics.UI.GLUT
+import System.Environment   ( getArgs )
 
 import GL.Bindings          ( display, idle, reshape )
 import Program.EventHandle  ( timerLoop, keyboardChar, mouse, mouseMotion
@@ -14,6 +15,11 @@ import qualified Program.State as P
 --  state to be shared between all the callbacks.
 main :: IO ()
 main = do
+    -- Initial state
+    arguments <- getArgs
+    state <- P.initializeState arguments
+
+
     -- Set up GLUT window
     (_,_) <- getArgsAndInitialize
     initialDisplayMode $= [DoubleBuffered]
@@ -21,11 +27,9 @@ main = do
     _ <- createWindow "Genetic Algorithm"
     windowPosition $= Position 0 480
 
-    -- Initial state
     blend $= Enabled
     blendEquation $= FuncAdd
     blendFunc $= (SrcAlpha, OneMinusSrcAlpha)
-    state <- P.initializeState
 
     -- Set up callbacks
     displayCallback         $= display state
@@ -38,7 +42,7 @@ main = do
     passiveMotionCallback   $= Just (passiveMotion state)
 
     -- Set up main control loop
-    addTimerCallback (div 1000 30) (timerLoop state)
+    addTimerCallback (P.msPerFrame state) (timerLoop state)
 
     -- Start the program
     mainLoop
