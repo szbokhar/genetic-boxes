@@ -15,17 +15,17 @@ build-type:          Simple
 cabal-version:       >=1.8
 
 executable gui
-  main-is:             GuiInteractive.hs
+  main-is:             Main.hs
   -- other-modules:
   build-depends:       base >= 4.5, OpenGL >= 2.2, GLUT >= 2.1, random >= 1.0,
-                       random-shuffle >= 0.0
+                       random-shuffle >= 0.0, gloss >= 1.7.8.2
 
-library
-  exposed-modules:     Data.BallBox, Data.Point, Data.Types,
-                       GL.Aliases, GL.Bindings, GL.Draw,
-                       Program.EventHandle, Program.InputHandle,
-                       Program.Simulate, Program.State
+--library
+--  exposed-modules:     Data.BallBox, Data.Point, Data.Types,
+--                       Program.EventHandle, Program.InputHandle,
+--                       Program.Simulate, Program.State
   -- other-modules:
-  build-depends:       base >=4.5,
-                       OpenGL >=2.2, GLUT >=2.1,
-                       random >=1.0, random-shuffle >=0.0
+--  build-depends:       base >=4.5,
+--                       OpenGL >=2.2, GLUT >=2.1,
+--                       random >=1.0, random-shuffle >=0.0,
+--                       gloss >= 1.7.8.2

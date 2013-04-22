@@ -1,20 +1,12 @@
-module Data.BallBox
-    ( BallBox(..), makeBox, randomBox, info, fitness, mateBoxes, drawBoxMating )
-where
+module Data.BallBox where
 
-import Control.Monad                ( forM_, forM, replicateM )
-import Data.Ord                     ( comparing )
-import Foreign.C.Types              ( CFloat(..) )
-import Graphics.Rendering.OpenGL    ( GLfloat )
+import Control.Monad                ( forM, replicateM )
 import System.Random                ( randomRIO )
 
 import Data.Types                   ( Shape(..), Color(..), ColorBall )
 import Data.Point                   ( Point )
-import GL.Draw                      ( Drawable(..), drawRect, fillCircle
-                                    , drawLine, fillTriangle )
 
-import GL.Aliases                   ( glfloat, pointInt, pointFl, pointGlint )
-import Program.Simulate             ( score, scoreParts, mate )
+--import Program.Simulate             ( score, scoreParts, mate )
 
 
 -- |Datatype for a BallBox.
@@ -27,9 +19,38 @@ data BallBox =
              , balls :: [ColorBall] }
   deriving (Show, Eq)
 
+-- |Generates a random BallBox in the IO monad
+randomBox :: Int -> (Int,Int) -> Int -> IO BallBox
+randomBox bid (w,h) n = do
+    -- Generate random circles
+    randomCircles <- forM [1..n]  (\_ -> do
+        -- Random geomerty
+        x <- rioI (0,w)
+        y <- rioI (0,h)
+        r <- rioI (5,20)
+        -- Random light color
+        [cr,cg,cb] <- replicateM 3 $ rioF (0.5,1.0)
+        -- Make shorthand circle reperesentation
+        return (x,y,r,cr,cg,cb,0.5) )
+
+    -- Return newly made box
+    return $ makeBox bid (w,h) randomCircles
+  where
+    -- Short random function aliases
+    rioI = randomRIO :: (Int,Int) -> IO Int
+    rioF = randomRIO :: (Float,Float) -> IO Float
+
+-- |Convienence function for compactly making a BallBox
+makeBox :: Int -> (Int,Int)
+               -> [(Int,Int,Int,Float,Float,Float,Float)] -> BallBox
+makeBox bid (w,h) circs =
+    BallBox bid False (w,h)
+    $ map (\(x,y,r,cr,cg,cb,ca) ->
+        (Circle (x,y) r, AlphaColor cr cg cb ca) ) circs
+
 
 -- |Makes the BallBox drawable
-instance Drawable BallBox where
+{--instance Drawable BallBox where
     drawAt p (BallBox _ sel d bs) = do
         -- Draw each circle
         mapM_ (\(ball@(Circle cp _), color) -> do
@@ -49,9 +70,9 @@ instance Drawable BallBox where
         -- Offset circle
         offset shift (Circle pos rad) = Circle (add pos shift) rad
         offset (_,_) _ = error "offset: Only intended for use with Circle"
+--}
 
-
--- |Make BallBox a member of ordering
+{-- |Make BallBox a member of ordering
 instance Ord BallBox where
     compare = comparing fitness
 
@@ -72,35 +93,8 @@ drawBoxMating (x,y) dad mom cs = do
     y' = glfloat y
 
 
--- |Convienence function for compactly making a BallBox
-makeBox :: Int -> (Int,Int)
-               -> [(Int,Int,Int,GLfloat,GLfloat,GLfloat,GLfloat)] -> BallBox
-makeBox bid (w,h) circs =
-    BallBox bid False (w,h)
-    $ map (\(x,y,r,cr,cg,cb,ca) ->
-        (Circle (x,y) r, AlphaColor cr cg cb ca) ) circs
 
 
--- |Generates a random BallBox in the IO monad
-randomBox :: Int -> (Int,Int) -> Int -> IO BallBox
-randomBox bid (w,h) n = do
-    -- Generate random circles
-    randomCircles <- forM [1..n]  (\_ -> do
-        -- Random geomerty
-        x <- rioI (0,w)
-        y <- rioI (0,h)
-        r <- rioI (5,20)
-        -- Random light color
-        [cr,cg,cb] <- replicateM 3 $ rioF (0.5,1.0)
-        -- Make shorthand circle reperesentation
-        return (x,y,r,CFloat cr,CFloat cg,CFloat cb,0.5) )
-
-    -- Return newly made box
-    return $ makeBox bid (w,h) randomCircles
-  where
-    -- Short random function aliases
-    rioI = randomRIO :: (Int,Int) -> IO Int
-    rioF = randomRIO :: (Float,Float) -> IO Float
 
 
 -- |Generates a succinct output string for a BallBox
@@ -127,4 +121,4 @@ mateBoxes n (BallBox _ _ s1 b1) (BallBox _ _ s2 b2) =
     forM [1..n] (\_ -> do
         -- Pass essential data to mate function
         (s, cs) <- mate (s1, b1) (s2, b2)
-        return $ BallBox (-1) False s cs)   -- Make box with dummy id
+        return $ BallBox (-1) False s cs)   -- Make box with dummy id--}

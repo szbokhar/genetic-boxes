@@ -1,27 +1,23 @@
-module Program.EventHandle
-    ( timerLoop, keyboardChar, mouse, mouseMotion, passiveMotion
-    , keyboardCharUp )
-where
+module Program.EventHandle where
 
-import Control.Applicative  ( (<$>) )
-import Control.Monad        ( when )
-import Data.Maybe           ( fromJust, isNothing )
-import Graphics.Rendering.OpenGL
-import Graphics.UI.GLUT
-import System.Exit          ( exitSuccess )
-import System.IO            ( hWaitForInput, hFlush, stdin, stdout )
+import Graphics.Gloss.Interface.IO.Game
 
-import Data.BallBox         ( drawBoxMating, fitness )
-import Data.Point           ( Point )
-import GL.Draw              ( Drawable(drawAt) )
-import GL.Aliases           ( readInt, float )
-import Program.InputHandle
-                            ( keyboardChar, keyboardCharUp, mouse, mouseMotion
-                            , passiveMotion, positions )
-
+import Data.BallBox
 import qualified Program.State as P
 
--- |Self calling callback that controls the flow of the program
+handleEvent :: Event -> P.State -> IO P.State
+handleEvent (EventKey (Char c) Down _ _) st = do
+    print st
+    handle c
+  where
+    handle 'q' = return st { P.close = True }
+    handle 'Q' = handle 'q'
+    handle '=' = P.increasePopulation st 1
+    handle '-' = return st { P.boxes = drop 1 (P.boxes st) }
+    handle  c  = return st
+handleEvent _ st = return st
+
+{-- |Self calling callback that controls the flow of the program
 timerLoop :: P.State -> IO ()
 timerLoop state = do
     -- Exit if the close flag is set
@@ -134,4 +130,4 @@ processCommands state = do
                                 P.Automate (fromJust n) P.autoTimestep P.Display
           where n = readInt wn
         execute (x:_)       = putStrLn $ "Error, command not recognized: " ++ x
-        execute _           = return ()
+        execute _           = return () --}

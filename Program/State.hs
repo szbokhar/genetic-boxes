@@ -1,19 +1,10 @@
-module Program.State
-    ( State(..), DisplayMode(..), AlgorithmPhases(..), initializeState
-    , autoTimestep, defaultCircleCount
-    , increasePopulation, rankPopulation, selectPopulation, matePopulation
-    , preMate
-    , pairup )
-where
+module Program.State where
 
-import Control.Applicative  ( (<$>) )
-import Control.Monad        ( forM )
-import Data.IORef           ( IORef, newIORef )
-import Data.List            ( sort )
-import Graphics.Rendering.OpenGL ( GLsizei, ($=), get )
-import System.Random.Shuffle ( shuffleM )
+import Control.Monad    ( forM )
+import Graphics.Gloss
+import System.Exit      ( exitSuccess )
 
-import Data.BallBox ( BallBox(boxId), mateBoxes, randomBox )
+import Data.BallBox
 import Program.ParseArguments
 
 -- |Controls the speed of transition from phases of automate mode
@@ -28,21 +19,18 @@ defaultCircleCount = 15
 --  Typically passed to all callback functions so that they may
 --  have a means to communicate.
 data State =
-     State  { msPerFrame:: Int                  -- Ms per frame
-            , width     :: IORef GLsizei        -- Width of the window
-            , height    :: IORef GLsizei        -- Height of the widow
-            , close     :: IORef Bool           -- Flag to quit program
-            , prompt    :: IORef Bool           -- Flag to print prompt tick
+     State  { viewSize  :: (Int, Int)     -- Width of the window
+            , close     :: Bool           -- Flag to quit program
+            , prompt    :: Bool           -- Flag to print prompt tick
 
-            , drawList  :: IORef [IO ()]        -- List of draws to execute
-            , drawMode  :: IORef DisplayMode    -- How to set up draw
-            , boxes     :: IORef [BallBox]      -- Boxes in population
-            , nextBoxId :: IORef Int            -- ID tp give next box generated
-            , gens      :: IORef Int }          -- Number of generations
+            , drawMode  :: DisplayMode    -- How to set up draw
+            , boxes     :: [BallBox]      -- Boxes in population
+            , nextBoxId :: Int            -- ID tp give next box generated
+            , gens      :: Int }          -- Number of generations
+  deriving Show
 
 -- |Data type to keep trak of the display mode of the program
-data DisplayMode = None
-                 | Population
+data DisplayMode = Population
                  | Mating
                  | Automate Int Int AlgorithmPhases
   deriving (Show, Read, Eq)
@@ -56,39 +44,30 @@ data AlgorithmPhases = Display
   deriving (Show, Read, Eq, Enum)
 
 -- |contains an initialized State value
-initializeState :: [String] -> IO State
-initializeState arguments = do
-    let ms = 1000 `div` 60
-    w <- newIORef 0
-    h <- newIORef 0
-    c <- newIORef False
-    p <- newIORef True
+initializeState :: ProgramOptions -> State
+initializeState opts =
+    State (optSize opts) False True Population [] 0 0
 
-    print (parseArguments defaultOptions arguments)
+timeUpdate :: Float -> State -> IO State
+timeUpdate time st
+    | close st      = exitSuccess
+    | otherwise     = return st
 
-    d <- newIORef []
-    mode <- newIORef Population
-    b <- newIORef []
-    bid <- newIORef 0
-    g <- newIORef 0
-    return (State ms w h c p d mode b bid g)
-
-
+drawState state = return Blank
 
 -- Functions to update the state of the population
-increasePopulation :: State -> Int -> IO ()
-increasePopulation state n = do
+increasePopulation :: State -> Int -> IO State
+increasePopulation st n = do
     -- Update box id counter
-    bid <- get $ nextBoxId state
-    nextBoxId state $= bid + n
+    let bid = nextBoxId st
     -- Generate n new boxes
     newBoxes <- forM [1..n]
                      (\i -> randomBox (bid+i) (100,100) defaultCircleCount )
     -- Update the state
-    xs <- get $ boxes state
-    boxes state $= xs++newBoxes
+    return st { boxes = boxes st ++ newBoxes
+              , nextBoxId = bid + n }
 
--- |Sorts the population
+{-- |Sorts the population
 rankPopulation :: State -> IO ()
 rankPopulation state = do
     xs <- get $ boxes state
@@ -121,7 +100,7 @@ matePopulation state = do
     g <- get $ gens state
     gens state $= g+1
 
-
+--}
 
 -- Utility functions and constants
 pairup :: [a] -> [(a,a)]

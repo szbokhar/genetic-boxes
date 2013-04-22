@@ -12,7 +12,6 @@ import System.Random    ( randomRIO )
 
 import Data.Types       ( Shape(Circle), ColorBall, Color(..) )
 import Data.Point       ( Point )
-import GL.Aliases       ( float )
 
 -- |Rates the ball box's score
 score :: Point Int -> [Shape Int] -> Float

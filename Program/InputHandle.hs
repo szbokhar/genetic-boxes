@@ -8,7 +8,6 @@ import Graphics.UI.GLUT
 
 import Data.BallBox     ( BallBox(..), info, fitness )
 import Data.Point       ( Point )
-import GL.Aliases       ( int, float, readInt )
 
 import qualified Program.State as P
 

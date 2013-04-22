@@ -5,8 +5,7 @@ where
 import Graphics.Rendering.OpenGL
                     ( GLfloat )
 
-import GL.Aliases   ( glfloat, setColor4, pointFl )
-import GL.Draw      ( Point, Drawable(draw), drawLine, fillCircle )
+import Data.Point
 
 -- |Type synonym used in BallBox
 type ColorBall = (Shape Int, Color)
@@ -24,11 +23,11 @@ data Color = Red
            | Blue
            | Black
            | White
-           | Color GLfloat GLfloat GLfloat
-           | AlphaColor GLfloat GLfloat GLfloat GLfloat
+           | Color Float Float Float
+           | AlphaColor Float Float Float Float
   deriving (Show, Read, Eq)
 
--- |Declaration for drawable
+{-- |Declaration for drawable
 instance (Integral a) => Drawable (Shape a)  where
     draw (Circle p r) = fillCircle (pointFl p) (glfloat r)
     draw (Line p q) = drawLine (pointFl p) (pointFl q)
@@ -45,3 +44,4 @@ instance Drawable Color where
                  setColor4 r g b 1
     draw (AlphaColor r g b a) =
                  setColor4 r g b a
+                 --}
