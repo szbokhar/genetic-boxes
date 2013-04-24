@@ -3,7 +3,7 @@ module Data.BallBox where
 import Control.Monad                ( forM, replicateM )
 import System.Random                ( randomRIO )
 
-import Data.Types                   ( Shape(..), Color(..), ColorBall, Point )
+import Data.Types                   ( Color(..), ColorBall(..), Point )
 
 
 -- |Datatype for a BallBox.
@@ -43,7 +43,7 @@ makeBox :: Int -> (Int,Int)
 makeBox bid (w,h) circs =
     BallBox bid False (w,h)
     $ map (\(x,y,r,cr,cg,cb,ca) ->
-        (Circle (x,y) r, AlphaColor cr cg cb ca) ) circs
+        (ColorBall (x,y) r (AlphaColor cr cg cb ca)) ) circs
 
 
 -- |Makes the BallBox drawable

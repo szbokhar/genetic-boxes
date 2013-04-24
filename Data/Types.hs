@@ -1,5 +1,5 @@
 module Data.Types
-    ( Shape(..), Color(..), ColorBall, Point )
+    ( Color(..), ColorBall(..), Point )
 where
 
 import Graphics.Rendering.OpenGL
@@ -9,13 +9,9 @@ import Graphics.Rendering.OpenGL
 type Point a = (a,a)
 
 -- |Type synonym used in BallBox
-type ColorBall = (Shape Int, Color)
-
--- |Datatypes for shapes
-data Shape a =
-       Circle       { p1 :: Point a, radius :: a }
-     | Line         { p1 :: Point a, p2 :: Point a }
-     | Pixel        { p1 :: Point a }
+data ColorBall = ColorBall { position :: Point Int
+                           , radius :: Int
+                           , ballColor :: Color }
   deriving (Show, Read, Eq)
 
 -- |Datatype for color
