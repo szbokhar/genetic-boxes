@@ -3,10 +3,7 @@ module Data.BallBox where
 import Control.Monad                ( forM, replicateM )
 import System.Random                ( randomRIO )
 
-import Data.Types                   ( Shape(..), Color(..), ColorBall )
-import Data.Point                   ( Point )
-
---import Program.Simulate             ( score, scoreParts, mate )
+import Data.Types                   ( Shape(..), Color(..), ColorBall, Point )
 
 
 -- |Datatype for a BallBox.

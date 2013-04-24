@@ -18,7 +18,7 @@ executable gui
   main-is:             Main.hs
   -- other-modules:
   build-depends:       base >= 4.5, OpenGL >= 2.2, GLUT >= 2.1, random >= 1.0,
-                       random-shuffle >= 0.0, gloss >= 1.7.8.2
+                       random-shuffle >= 0.0, gloss >= 1.7
 
 --library
 --  exposed-modules:     Data.BallBox, Data.Point, Data.Types,

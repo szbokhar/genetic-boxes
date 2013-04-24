@@ -6,9 +6,7 @@ import Data.BallBox
 import qualified Program.State as P
 
 handleEvent :: Event -> P.State -> IO P.State
-handleEvent (EventKey (Char c) Down _ _) st = do
-    print st
-    handle c
+handleEvent (EventKey (Char c) Down _ _) st = handle c
   where
     handle 'q' = return st { P.close = True }
     handle 'Q' = handle 'q'

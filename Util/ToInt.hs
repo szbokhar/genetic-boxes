@@ -15,6 +15,18 @@ class ToInt a where
     --  Safet version of int
     int' :: a -> Maybe Int
 
+instance ToInt Int where
+    int' = Just . id
+
+instance ToInt Integer where
+    int' = Just . fromIntegral
+
+instance ToInt Float where
+    int' = Just . floor
+
+instance ToInt Double  where
+    int' = Just . floor
+
 instance ToInt [Char]  where
     int' str
         | null attempt      = Nothing

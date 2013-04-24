@@ -6,6 +6,7 @@ import System.Exit      ( exitSuccess )
 
 import Data.BallBox
 import Program.ParseArguments
+import Util.ToFloat
 
 -- |Controls the speed of transition from phases of automate mode
 autoTimestep :: Int
@@ -24,9 +25,12 @@ data State =
             , prompt    :: Bool           -- Flag to print prompt tick
 
             , drawMode  :: DisplayMode    -- How to set up draw
+            , boxSize   :: (Int, Int)     -- Box side length
             , boxes     :: [BallBox]      -- Boxes in population
             , nextBoxId :: Int            -- ID tp give next box generated
-            , gens      :: Int }          -- Number of generations
+            , gens      :: Int            -- Number of generations
+            , boxSpace  :: Int            -- Space between boxes
+     }
   deriving Show
 
 -- |Data type to keep trak of the display mode of the program
@@ -46,14 +50,15 @@ data AlgorithmPhases = Display
 -- |contains an initialized State value
 initializeState :: ProgramOptions -> State
 initializeState opts =
-    State (optSize opts) False True Population [] 0 0
+    State (optSize opts) False True Population (100,100) [] 0 0 20
 
 timeUpdate :: Float -> State -> IO State
 timeUpdate time st
     | close st      = exitSuccess
     | otherwise     = return st
 
-drawState state = return Blank
+drawState :: State -> Picture
+drawState state = Circle $ 10 * float (length $ boxes state)
 
 -- Functions to update the state of the population
 increasePopulation :: State -> Int -> IO State
@@ -62,7 +67,7 @@ increasePopulation st n = do
     let bid = nextBoxId st
     -- Generate n new boxes
     newBoxes <- forM [1..n]
-                     (\i -> randomBox (bid+i) (100,100) defaultCircleCount )
+                     (\i -> randomBox (bid+i) (boxSize st) defaultCircleCount )
     -- Update the state
     return st { boxes = boxes st ++ newBoxes
               , nextBoxId = bid + n }

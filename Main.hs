@@ -6,8 +6,11 @@ import Data.Maybe                           ( isJust, fromJust )
 import Graphics.Gloss.Interface.IO.Game
 import System.Environment                   ( getArgs )
 
-import Program.EventHandle
-import Program.ParseArguments
+import Program.Drawable                     ( Drawable(..) )
+import Program.EventHandle                  ( handleEvent )
+import Program.ParseArguments               ( ProgramOptions(parseError, optSize)
+                                            , parseArguments, defaultOptions )
+import Util.ToFloat
 import qualified Program.State as P
 
 -- |Main program that sets up the glut window and
@@ -18,10 +21,11 @@ main = do
     opts <- (parseArguments defaultOptions) <$> getArgs
     when (isJust $ parseError opts)
        $ putStrLn (fromJust $ parseError opts)
-    playIO (InWindow "Boxes" (0,0) (optSize opts))
+    let (width, height) = optSize opts
+    playIO (InWindow "Boxes" (optSize opts) (0,0))
            white
            30
            (P.initializeState opts)
-           P.drawState
+           (return . (drawAt (-(float width)/2,(float height)/2)) )
            handleEvent
            P.timeUpdate
