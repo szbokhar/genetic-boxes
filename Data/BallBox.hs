@@ -22,8 +22,8 @@ randomBox bid (w,h) n = do
     -- Generate random circles
     randomCircles <- forM [1..n]  (\_ -> do
         -- Random geomerty
-        x <- rioI (0,w)
-        y <- rioI (0,h)
+        x <- rioI (-div w 2,div w 2)
+        y <- rioI (-div h 2,div h 2)
         r <- rioI (5,20)
         -- Random light color
         [cr,cg,cb] <- replicateM 3 $ rioF (0.5,1.0)

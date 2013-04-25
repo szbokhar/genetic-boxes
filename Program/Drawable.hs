@@ -4,7 +4,7 @@ module Program.Drawable where
 import Graphics.Gloss.Data.Picture
 import Graphics.Gloss.Data.Color
 
-import Data.Types       ( ColorBall(..) )
+import Data.Types       ( ColorBall(..), toGlossColor )
 import Util.ToFloat
 
 import qualified Data.BallBox as B
@@ -31,8 +31,8 @@ instance Drawable B.BallBox where
              $ Pictures
              $ [rect] ++ circles
       where (width, height) = (\(a,b) -> (float a, float b)) $ B.size box
-            rect = rectangleWire width height
-            circles = map draw (B.balls box)
+            rect = color white $ rectangleWire width height
+            circles = map (\ball@(ColorBall (x,y) _ _) -> drawAt (float x, float y) ball) (B.balls box)
 
 instance Drawable ColorBall where
-    draw cball = Blank
+    draw (ColorBall pos rad col) = Color (toGlossColor col) $ circleSolid (float rad)

@@ -21,9 +21,11 @@ main = do
     opts <- (parseArguments defaultOptions) <$> getArgs
     when (isJust $ parseError opts)
        $ putStrLn (fromJust $ parseError opts)
+
     let (width, height) = optSize opts
+
     playIO (InWindow "Boxes" (optSize opts) (0,0))
-           white
+           black
            30
            (P.initializeState opts)
            (return . (drawAt (-(float width)/2,(float height)/2)) )
