@@ -13,6 +13,7 @@ data ProgramOptions =
                     , parseError            :: Maybe String }
   deriving (Show, Read, Eq)
 
+defaultOptions :: ProgramOptions
 defaultOptions =
     ProgramOptions { optHelp = False
                    , optTimestep = 2
@@ -23,6 +24,7 @@ defaultOptions =
                    , optInputFile = Nothing
                    , parseError = Nothing }
 
+parseArguments :: ProgramOptions -> [String] -> ProgramOptions
 parseArguments opts [] = opts
 parseArguments opts ("-h":xs) = parseArguments (opts { optHelp = True }) xs
 
@@ -45,5 +47,5 @@ parseArguments opts ("-d":sWidth:sHeight:xs) =
     height = int' sHeight
     msg = Just "Must supply -d option with two valid integers"
 
-parseArguments opts (x:xs) =
+parseArguments opts (x:_) =
     opts { parseError = Just $ "Unrecognized option '" ++ x ++ "'" }

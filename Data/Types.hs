@@ -1,8 +1,6 @@
 module Data.Types
-    ( Color(..), ColorBall(..), Point, toGlossColor )
+    ( Color(..), ColorBall(..), Point )
 where
-
-import qualified Graphics.Gloss.Data.Color as G
 
 -- |Type synonym for a 2-tuple
 type Point a = (a,a)
@@ -22,13 +20,3 @@ data Color = Red
            | Color Float Float Float
            | AlphaColor Float Float Float Float
   deriving (Show, Read, Eq)
-
-toGlossColor :: Color -> G.Color
-toGlossColor  Red                   = G.red
-toGlossColor  Green                 = G.green
-toGlossColor  Blue                  = G.blue
-toGlossColor  Black                 = G.black
-toGlossColor  White                 = G.white
-toGlossColor (Color r g b)          = G.makeColor r g b 1.0
-toGlossColor (AlphaColor r g b a)   = G.makeColor r g b a
-

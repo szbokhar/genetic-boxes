@@ -1,8 +1,9 @@
 module Program.EventHandle where
 
+import Data.List                            ( find )
 import Graphics.Gloss.Interface.IO.Game
 
-import Data.BallBox
+import Util.ToInt
 import qualified Program.State as P
 
 handleEvent :: Event -> P.State -> IO P.State
@@ -12,7 +13,21 @@ handleEvent (EventKey (Char c) Down _ _) st = handle c
     handle 'Q' = handle 'q'
     handle '=' = P.increasePopulation st 1
     handle '-' = return st { P.boxes = drop 1 (P.boxes st) }
-    handle  c  = return st
+    handle  _  = return st
+
+handleEvent (EventMotion (rawx, rawy)) st = do
+    print target
+    return st { P.hoverSlot =  target }
+  where (mx, my) = (div w 2 + int rawx, div h 2 - int rawy)
+        (w,h) = P.viewSize st
+        (bw, bh) = P.boxSize st
+        slots = P.populationDrawSlots
+                    (w,h) (bw, bh) (P.boxSpace st)
+        isMouseOverSlot (slotx,sloty) =
+            (slotx < mx) && (sloty < my) && (mx < slotx + bw) && (my < sloty + bh)
+        target = maybe Nothing (Just . fst)
+                $ find (\(i,slot) -> isMouseOverSlot slot )
+                $ zip [1..] slots
 handleEvent _ st = return st
 
 {-- |Self calling callback that controls the flow of the program

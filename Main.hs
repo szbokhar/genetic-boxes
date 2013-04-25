@@ -18,16 +18,19 @@ import qualified Program.State as P
 --  state to be shared between all the callbacks.
 main :: IO ()
 main = do
+    -- Parse commandline arguments into program options
     opts <- (parseArguments defaultOptions) <$> getArgs
     when (isJust $ parseError opts)
        $ putStrLn (fromJust $ parseError opts)
 
-    let (width, height) = optSize opts
+    -- Get width and height of window
+    let (width, height) = (\(x,y) -> (float x, float y)) $ optSize opts
 
-    playIO (InWindow "Boxes" (optSize opts) (0,0))
-           black
-           30
-           (P.initializeState opts)
-           (return . (drawAt (-(float width)/2,(float height)/2)) )
-           handleEvent
-           P.timeUpdate
+    -- Create window and setup drawing
+    playIO (InWindow "Boxes" (optSize opts) (0,0))  -- Window setup
+           black                                    -- Background color
+           30                                       -- Frames per second
+           (P.initializeState opts)                 -- Initial state
+           (return . (drawAt (-width/2,height/2)) ) -- Draw state function
+           handleEvent                              -- Handle input events
+           P.timeUpdate                             -- Automaticaly step state

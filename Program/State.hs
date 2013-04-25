@@ -24,12 +24,14 @@ data State =
             , close     :: Bool           -- Flag to quit program
             , prompt    :: Bool           -- Flag to print prompt tick
 
-            , drawMode  :: DisplayMode    -- How to set up draw
-            , boxSize   :: (Int, Int)     -- Box side length
+            , nextBoxId :: Int            -- ID to give next box generated
             , boxes     :: [BallBox]      -- Boxes in population
-            , nextBoxId :: Int            -- ID tp give next box generated
+
             , gens      :: Int            -- Number of generations
+            , boxSize   :: (Int, Int)     -- Box side length
+            , drawMode  :: DisplayMode    -- How to set up draw
             , boxSpace  :: Int            -- Space between boxes
+            , hoverSlot :: Maybe Int      -- ID of box under mouse
      }
   deriving Show
 
@@ -50,10 +52,20 @@ data AlgorithmPhases = Display
 -- |contains an initialized State value
 initializeState :: ProgramOptions -> State
 initializeState opts =
-    State (optSize opts) False True Population (100,100) [] 0 0 20
+    State { viewSize = (optSize opts)
+          , close = False
+          , prompt = True
+          , drawMode = Population
+          , boxSize = (100,100)
+          , boxes = []
+          , gens = 0
+          , nextBoxId = 0
+          , boxSpace = 20
+          , hoverSlot = Nothing
+    }
 
 timeUpdate :: Float -> State -> IO State
-timeUpdate time st
+timeUpdate _ st
     | close st      = exitSuccess
     | otherwise     = return st
 
@@ -71,6 +83,12 @@ increasePopulation st n = do
     -- Update the state
     return st { boxes = boxes st ++ newBoxes
               , nextBoxId = bid + n }
+
+populationDrawSlots :: (Int, Int) -> (Int, Int) -> Int -> [(Int, Int)]
+populationDrawSlots (winW,winH) (boxW,boxH) sp =
+    [ (x, y)
+    | y <- [sp, 2*sp+boxH .. winH-boxH-sp]
+    , x <- [sp, 2*sp+boxW .. winW-boxW-sp] ]
 
 {-- |Sorts the population
 rankPopulation :: State -> IO ()
