@@ -1,5 +1,7 @@
 module Program.EventHandle where
 
+import Control.Monad                        ( when )
+import Data.Maybe                           ( isNothing, isJust, fromJust )
 import Data.List                            ( find )
 import Graphics.Gloss.Interface.IO.Game
 
@@ -13,21 +15,28 @@ handleEvent (EventKey (Char c) Down _ _) st = handle c
     handle 'Q' = handle 'q'
     handle '=' = P.increasePopulation st 1
     handle '-' = return st { P.boxes = drop 1 (P.boxes st) }
+    handle 'r' = return $ P.rankPopulation st
+    handle 's' = return $ P.selectPopulation st 10
     handle  _  = return st
 
 handleEvent (EventMotion (rawx, rawy)) st = do
-    print target
+    when (isNothing (P.hoverSlot st)
+          && isJust target
+          && fromJust target <= length (P.boxes st)) $ do
+        print target
     return st { P.hoverSlot =  target }
   where (mx, my) = (div w 2 + int rawx, div h 2 - int rawy)
         (w,h) = P.viewSize st
         (bw, bh) = P.boxSize st
-        slots = P.populationDrawSlots
-                    (w,h) (bw, bh) (P.boxSpace st)
+        slots = P.populationDrawSlots (w,h) (bw, bh) (P.boxSpace st)
+
         isMouseOverSlot (slotx,sloty) =
             (slotx < mx) && (sloty < my) && (mx < slotx + bw) && (my < sloty + bh)
+
         target = maybe Nothing (Just . fst)
-                $ find (\(i,slot) -> isMouseOverSlot slot )
-                $ zip [1..] slots
+               $ find (\(i,slot) -> isMouseOverSlot slot )
+               $ zip [1..] slots
+
 handleEvent _ st = return st
 
 {-- |Self calling callback that controls the flow of the program

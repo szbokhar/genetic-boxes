@@ -1,9 +1,11 @@
 module Data.BallBox where
 
 import Control.Monad                ( forM, replicateM )
+import Data.Ord                     ( comparing )
 import System.Random                ( randomRIO )
 
 import Data.Types                   ( Color(..), ColorBall(..) )
+import Program.Simulate             ( score )
 
 
 -- |Datatype for a BallBox.
@@ -46,12 +48,16 @@ makeBox bid (w,h) circs =
         (ColorBall (x,y) r (AlphaColor cr cg cb ca)) ) circs
 
 
-{-- |Make BallBox a member of ordering
+-- |Make BallBox a member of ordering
 instance Ord BallBox where
     compare = comparing fitness
 
+-- |Evaluates the fitness of a BallBox
+fitness :: BallBox -> Float
+fitness (BallBox _ _ dim cs) = score dim cs
 
--- |Generates a succinct output string for a BallBox
+
+{-- |Generates a succinct output string for a BallBox
 info :: BallBox -> String
 info box@(BallBox bid _ dimentions bs) =
     "Id: " ++ show bid ++
@@ -63,10 +69,6 @@ info box@(BallBox bid _ dimentions bs) =
   where Just (o, a, l, c) = parts
         parts = scoreParts dimentions (map fst bs)
 
-
--- |Evaluates the fitness of a BallBox
-fitness :: BallBox -> Float
-fitness (BallBox _ _ dim cs) = score dim $ map fst cs
 
 
 -- |Mates two ball boxes to make a certain number of children

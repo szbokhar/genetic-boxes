@@ -1,6 +1,7 @@
 module Program.State where
 
 import Control.Monad    ( forM )
+import Data.List        ( sort )
 import Graphics.Gloss
 import System.Exit      ( exitSuccess )
 
@@ -41,7 +42,7 @@ data DisplayMode = Population
                  | Automate Int Int AlgorithmPhases
   deriving (Show, Read, Eq)
 
--- |Data type to keep track of the phase of the automate drun of the algorithm
+-- |Data type to keep track of the phase of the automated run of the algorithm
 data AlgorithmPhases = Display
                      | Sort
                      | Select
@@ -90,19 +91,15 @@ populationDrawSlots (winW,winH) (boxW,boxH) sp =
     | y <- [sp, 2*sp+boxH .. winH-boxH-sp]
     , x <- [sp, 2*sp+boxW .. winW-boxW-sp] ]
 
-{-- |Sorts the population
-rankPopulation :: State -> IO ()
-rankPopulation state = do
-    xs <- get $ boxes state
-    boxes state $= sort xs
+-- |Sorts the population
+rankPopulation :: State -> State
+rankPopulation st = st { boxes = sort $ boxes st }
 
 -- |Keeps the first n of the population
-selectPopulation :: State -> Int -> IO ()
-selectPopulation state n = do
-    xs <- get $ boxes state
-    boxes state $= take n xs
+selectPopulation :: State -> Int -> State
+selectPopulation state n = state { boxes = take n (boxes state) }
 
--- |Do stuff before mating
+{-- |Do stuff before mating
 preMate :: State -> IO ()
 preMate state = do
     bs <- get $ boxes state
