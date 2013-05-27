@@ -49,7 +49,7 @@ instance Drawable P.State where
 
         -- List that indicates which BallBoxes are selected
         selectedList = [ maybe False (\x -> i == x) (P.hoverSlot state)
-                       | i <- [1..]]
+                       | i <- [0..]]
 
 
 -- |Draws a single Ballbox. Draws the border as red if the box is selected

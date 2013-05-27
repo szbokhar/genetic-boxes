@@ -5,6 +5,7 @@ import Data.Maybe                           ( isNothing, isJust, fromJust )
 import Data.List                            ( find )
 import Graphics.Gloss.Interface.IO.Game
 
+import Data.BallBox                 ( infoString )
 import Util.ToInt
 import qualified Program.State as P
 
@@ -20,22 +21,28 @@ handleEvent (EventKey (Char c) Down _ _) st = handle c
     handle  _  = return st
 
 handleEvent (EventMotion (rawx, rawy)) st = do
-    when (isNothing (P.hoverSlot st)
-          && isJust target
-          && fromJust target <= length (P.boxes st)) $ do
-        print target
+    when mouseEnteredBox $
+        putStrLn $ infoString $ (P.boxes st) !! (fromJust target)
     return st { P.hoverSlot =  target }
-  where (mx, my) = (div w 2 + int rawx, div h 2 - int rawy)
-        (w,h) = P.viewSize st
-        (bw, bh) = P.boxSize st
-        slots = P.populationDrawSlots (w,h) (bw, bh) (P.boxSpace st)
+  where
+    (mx, my) = (div w 2 + int rawx, div h 2 - int rawy)  -- Mouse x and y pos
+    (w,h) = P.viewSize st  -- Viewport size
+    (bw, bh) = P.boxSize st  -- BallBox size
+    slots = P.populationDrawSlots (w,h) (bw, bh) (P.boxSpace st)  -- Box slots for drawing
 
-        isMouseOverSlot (slotx,sloty) =
-            (slotx < mx) && (sloty < my) && (mx < slotx + bw) && (my < sloty + bh)
+    -- Checks if the mouse position is over the draw slot at this position
+    isMouseOverSlot (slotx,sloty) =
+        (slotx < mx) && (sloty < my) && (mx < slotx + bw) && (my < sloty + bh)
 
-        target = maybe Nothing (Just . fst)
-               $ find (\(i,slot) -> isMouseOverSlot slot )
-               $ zip [1..] slots
+    -- Checks if the mouse has just hovered over a box
+    mouseEnteredBox = isNothing (P.hoverSlot st)  -- Not hovering box before
+                   && isJust target  -- Is actual slot
+                   && fromJust target < length (P.boxes st)  -- Does slot have box
+
+    -- The hovered box
+    target = maybe Nothing (Just . fst)
+           $ find (\(_,slot) -> isMouseOverSlot slot )
+           $ zip [0..] slots
 
 handleEvent _ st = return st
 

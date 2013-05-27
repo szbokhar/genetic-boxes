@@ -5,7 +5,7 @@ import Data.Ord                     ( comparing )
 import System.Random                ( randomRIO )
 
 import Data.Types                   ( Color(..), ColorBall(..) )
-import Program.Simulate             ( score )
+import Program.Simulate             ( score, scoreParts )
 
 
 -- |Datatype for a BallBox.
@@ -55,6 +55,14 @@ instance Ord BallBox where
 -- |Evaluates the fitness of a BallBox
 fitness :: BallBox -> Float
 fitness (BallBox _ _ dim cs) = score dim cs
+
+
+-- |Prints an info string for a ballbox
+infoString :: BallBox -> String
+infoString box = strId ++ strScore ++ strParts
+  where strId = "ID: " ++ show (boxId box) ++ " "
+        strScore = "Score: " ++ show (fitness box) ++ " "
+        strParts = maybe "" show $ scoreParts (size box) (balls box)
 
 
 {-- |Generates a succinct output string for a BallBox
