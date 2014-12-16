@@ -12,4 +12,4 @@ $ cabal run
 ```
 
 When the window is opened, press the `h` key to display the help text. This
-will be displayed in the terminal
+will be displayed in the terminal.
