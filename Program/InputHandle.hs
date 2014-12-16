@@ -65,6 +65,8 @@ keyboardChar state 'h' _ = do
     putStrLn "------\n\
              \Commands:\n\
              \    h - Show commands list\n\
+             \    = - Add boxes to the population\n\
+             \    - - Remove boxes from the population\n\
              \    p - Switch to population mode\n\
              \    m - Switch to mate mode\n\
              \    r - Rank guys in population\n\
